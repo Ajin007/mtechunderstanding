@@ -4,11 +4,17 @@
 package com.examly.springapp.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.examly.springapp.model.Customer;
@@ -48,6 +55,27 @@ public class CustomerController {
         this.customerService=customerService;
 
     }
+
+
+    // my pagination 
+    @GetMapping("/tinopagination")
+    public Page<Customer> myPaginationMethodInController(int pageNumber,int pageSize){
+
+       Pageable pageableee= PageRequest.of(pageNumber, pageSize);
+     
+        return customerService.myPaginationMethod(pageableee);
+     }
+
+
+
+
+
+    @PostMapping("/postcustomerdata")
+    public Customer postCustomerData(@RequestBody Customer customer){
+        return customerService.postMethodForCustomer(customer);
+    }
+
+
 
 
     // from service method creation
@@ -90,22 +118,16 @@ if(customer.isPresent()){
 
        return customerRepository.save(customer);
 
-       
+     
     }
 
 
 
-
-
-
-
-    @PostMapping("/savemanucustomer")
+    @PostMapping("/savemanycustomer")
     public List<Customer> saveCustomer(@RequestBody List<Customer> customer){
         // call the method from the repository 
        return customerRepository.saveAll(customer);
     }
-
-
 
 
 
@@ -153,11 +175,72 @@ if(customer.isPresent()){
         return new ResponseEntity<Optional<Customer>>(customer,httpheader, HttpStatus.NO_CONTENT);
        }
 
+
+       
+    }
+    
+    // pageable conceptUnderstanding
+    @GetMapping("/pagination")
+    public ResponseEntity<Map<String,Object>> getThePageableObject(@RequestParam int pageNumber,@RequestParam int pageSize){
+
+      
+     Pageable pageable=PageRequest.of(pageNumber, pageSize);
+    Page page= customerService.methodUsingThePage(pageable);
+
+    Map<String,Object> map=new HashMap<String,Object>();
+    map.put("data", page.getContent());
+    map.put("Content-avaialable",page.hasContent());
+    map.put("pageSize",page.getSize());
+
+    // return new ResponseEntity<Page<Customer>>(page, HttpStatus.OK);
+
+    return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
 
 
+    // method using the pagination and sorting
+    public Page<Customer> methodsWithSort(int pageNumber,int pageSize, Sort sort){
 
+        Pageable page=PageRequest.of(pageNumber, pageSize, sort);
+       return customerService.methodUsingThePageAndSort( page);
+    }
+
+    // method just using the sorting conceptUnderstanding
+
+    @GetMapping("/sortingalone")
+    public List<Customer> methodForSortingAlone(@RequestParam String sortBy){
+
+        // Sort.Order order=Sort.Order.asc(sortBy);
+
+        if (sortBy == null || sortBy.isEmpty()) {
+            
+            sortBy = "id";
+        }
+
+       
+        Sort sort= Sort.by(Sort.Order.desc(sortBy));
+
+        return customerService.methodWithSort(sort);
+
+    }
+
+
+    @GetMapping("/paginationandsorting")
+    public Page<Customer> methodUsingPageAndSort(@RequestParam int pageNumber,@RequestParam int pageSize,
+    @RequestParam(defaultValue = "asc",required = true) String sortBY,@RequestParam(defaultValue = "asc") String sortOrder){
+
+        Sort sort=Sort.by(Sort.Order.by(sortBY));
+        if("desc".equalsIgnoreCase(sortOrder)){
+            sort=sort.descending();
+        }else{
+            sort=sort.ascending();
+        }
+
+        Pageable page=PageRequest.of(pageNumber, pageSize, sort);
+
+       return customerService.methodUsingThePageAndSort(page);
+    }
 
 
 
@@ -171,6 +254,22 @@ if(customer.isPresent()){
         return customerRepository.existsById(id);
     }
 
+    @GetMapping("/pagablecustommethod")
+    public Page<Customer> getByCustomPageMethod(
+        @RequestParam int pageNumber,
+        @RequestParam int pageSize,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam String name
+
+    ){
+
+        Sort sort=Sort.by(Sort.Order.by(sortBy)).descending();
+
+       Pageable pageable= PageRequest.of(pageNumber, pageSize, sort);
+
+        return customerService.getBYName(name , pageable);
+
+    }
 
 
 
@@ -214,6 +313,7 @@ if(customer.isPresent()){
     // }
 
 }
+
 ~~~
 ## model
 ~~~
@@ -294,6 +394,8 @@ public class Customer {
 ~~~
 package com.examly.springapp.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -306,10 +408,20 @@ import com.examly.springapp.model.Customer;
 public interface CustomerRespository extends JpaRepository<Customer,Integer>  {
 
 
+
+
+
+
+
+
+    
    public Customer findByName(String name);
 
    public boolean existsById(int id);
 
+   public Page<Customer> findByName(String name,Pageable pageable);
+
+   // make sure to add the containing in the suffix too, which will replace LIKE "%aji%" in the query
 
 
 
@@ -329,14 +441,21 @@ public interface CustomerRespository extends JpaRepository<Customer,Integer>  {
 
     // public boolean existsById(int id);
 }
+
 ~~~
 ## service
 ~~~
 package com.examly.springapp.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.examly.springapp.repository.CustomerRespository;
 import com.examly.springapp.model.Customer;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -348,15 +467,44 @@ public class CustomerService {
 
    private  CustomerRespository customerRespository;
 
+   
    public CustomerService(CustomerRespository customerRespository){
     this.customerRespository=customerRespository;
    }
+
+   // I wrote method simply 
+
+   public Customer postMethodForCustomer(Customer customer){
+
+      return customerRespository.save(customer);
+
+   }
+
+
+
+
+   // I am going to do the pagination.
+   // Am going to create my own methodsWithSort
+
+   public Page<Customer> myPaginationMethod(Pageable pageable){
+      return customerRespository.findAll(pageable);
+   }
+
+
+
+
+
+
+
 
 
    public Optional<Customer> getCustomerId(int id){
     return customerRespository.findById(id);
 
    }
+
+
+
 
    public  Optional<Customer> getCustomerUsingIdFromRepo(int id){
     return customerRespository.findById(id);
@@ -365,8 +513,28 @@ public class CustomerService {
    public void deleteIdFromRepo(Integer id){
     this.customerRespository.deleteById(id);
     
+   }
+
+   public Page<Customer> methodUsingThePage(Pageable pageable){
+      return customerRespository.findAll(pageable);
+   }
+
+   public Page<Customer> methodUsingThePageAndSort(Pageable pageable){
+      return customerRespository.findAll(pageable);
+   }
+
+   public List<Customer> methodWithSort(Sort sort){
+     return customerRespository.findAll(sort);
+   }
+
+   public Page<Customer> getBYName(String name,Pageable pageable){
+      return customerRespository.findByName(name, pageable);
 
    }
+
+   
+
 }
+
 ~~~
 
