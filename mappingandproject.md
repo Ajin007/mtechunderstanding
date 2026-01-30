@@ -1,5 +1,4 @@
 ## with the mapping :
-
 controller
 ~~~
 package com.examly.springapp.controller;
@@ -346,9 +345,8 @@ if(customer.isPresent()){
 
 ~~~
 
-~~~
 
-model
+## model
 ~~~
 package com.examly.springapp.model;
 
