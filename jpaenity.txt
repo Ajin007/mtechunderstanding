@@ -134,7 +134,102 @@ public class DumpMethods {
         }
     }
 }
+https://www.baeldung.com/spring-boot-start
 
+https://medium.com/@oindrila-b/a-simple-spring-boot-application-8a2e0bb005ef
+
+https://medium.com/@mohit.mourya.sbg/object-relational-mapping-orm-34ca141eabf6
+
+https://www.baeldung.com/spring-vs-spring-boot
+
+https://medium.com/@udaypatil318/spring-boot-architecture-39935654ce5c
+
+Bean creation using the xml format
+https://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/beans.html
+
+Bean creation using the annotation
+https://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/beans.html#beans-annotation-config
+
+1. WHAT THIS CREATE IN THE SPRING BOOT?
+@SpringApplication.run(SpringappApplication.class, args);
+
+
+--> ServletWebServerApplicationContext
+
+2. iN BEAN ?
+<bean id="productService" class="com.ProductService"/>
+
+ANNOTATION:
+@Component
+class ProductService {}
+
+
+3. @Autowired, @Inject, @Resource, @Value themselves are implemented using BeanPostProcessors
+
+4. HOW YOU WRITE BEAN POST PROCESSING?
+@Bean
+public MyBeanPostProcessor myBpp() {
+    return new MyBeanPostProcessor();
+}
+
+
+5. HOW THE sPRING BOOT STARTS:
+11️⃣ How Spring Boot uses all this internally
+
+Spring Boot:
+
+Starts ApplicationContext
+
+Loads auto-configurations
+
+Registers BeanPostProcessors
+
+Scans components
+
+Creates beans
+
+Injects dependencies
+
+Applies AOP
+
+Starts embedded server
+
+6. mENTAL BODY OF THE sPRING BOOT:
+
+Spring Boot App
+ └── ApplicationContext
+     └── BeanFactory
+         └── Beans
+             ├── Created
+             ├── Injected
+             ├── Post-Processed
+             └── Managed
+
+
+7. Annotations are just instructions
+Context + Factory are the engine
+
+8. 3️⃣ Interview-level Summary (save this)
+
+Bean → Object managed by Spring
+
+BeanFactory → Core IoC container
+
+ApplicationContext → Advanced BeanFactory
+
+Annotations → Metadata for bean creation & wiring
+
+Spring Boot → Auto-creates ApplicationContext
+
+BeanPostProcessor → Modifies beans during lifecycle
+
+@Autowired works because of BeanPostProcessor
+
+You cannot autowire inside BeanPostProcessor
+
+
+8. Query creation by the Custom methods?
+https://docs.spring.io/spring-data/jpa/reference/repositories/query-methods-details.html
 
 
 
