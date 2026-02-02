@@ -1,0 +1,140 @@
+@NamedQuery ---> used in @Entity 
+1---> entity level data fetching , performance improved 
+
+2. @NamedQuery is used by the EntityManager object.
+3. Need to explain what is the EntityManager class.
+4. Hibernate Lifecycle meaning.
+5. Return type of JPQL --->List
+6. why JPQL does not support LIMIT and OFFSET , give the methods to do the same?
+Instead, JPQL uses the setFirstResult() and setMaxResults() methods in the Query interface to specify the range of results.
+Query query = entityManager.createQuery("SELECT u FROM User u");
+query.setFirstResult(10);  // Offset, skips the first 10 results
+query.setMaxResults(20);   // Limits the result to 20 results
+List<User> users = query.getResultList();
+
+8. why JPQl does not support offset and the Limit in the query?
+
+The reason JPQL doesn't support LIMIT and OFFSET directly is that JPQL is designed to operate at the object level (working with entities), rather than the table level (working with database rows directly). The focus of JPQL is to query the entity model rather than the raw database structure.
+
+Here's a breakdown of why LIMIT and OFFSET are not natively supported in JPQL:
+
+JPQL is object-oriented:
+JPQL operates over entities, which are Java objects. It works at a higher abstraction level compared to raw SQL, which operates directly on database tables. Since LIMIT and OFFSET are SQL features used to limit the number of rows returned by a query, they don’t map directly to entities or Java objects. JPQL is focused on fetching instances of entities and not rows of data from database tables.
+
+Database portability:
+LIMIT and OFFSET are specific to certain SQL dialects (e.g., MySQL, PostgreSQL). Not all databases support these constructs in the same way, and the syntax may differ. For example:
+
+MySQL/PostgreSQL use LIMIT and OFFSET.
+
+SQL Server uses TOP and OFFSET FETCH (in newer versions).
+
+Oracle uses ROWNUM or FETCH FIRST.
+7. What is the difference between an inner join and a left outer join in JPA?
+An inner join retrieves only the entities that have related entities, and a left outer join retrieves all entities, including those without related entities, and includes null values for the related entities when they do not exist
+
+8. Which of the following is an example of a self-join in JPA?
+SELECT e1 FROM Employee e1 JOIN Employee e2 WHERE e1.department = e2.department
+9. What is the syntax for a join query in JPA?
+SELECT entity FROM entity JOIN related_entity ON entity.attribute = related_entity.attribute
+
+10. What is the purpose of the ON keyword in a join query in JPA?
+
+To specify the condition for the join
+
+11. What is the purpose of the FETCH keyword in a join query in JPA?
+
+To specify the fetch type for the relationship
+
+
+11. what is the use of the @interface in the coding level ?, how to make a custom method?
+
+12. what is the use of the annoatation methods?
+
+If you need to set the data at compile time using annotations, it's important to note that annotations in Java are designed to be static and constant at compile time. This means that annotations cannot directly depend on dynamic or runtime data such as the class name, method parameters, or other runtime-specific values.
+
+13. How to create a Custom annotation ?
+package com.examly.springapp.custommethods;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Documented
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface someNewMethodTrigger {
+
+    
+
+    String entrydata() default "New Method is triggered from this class";
+
+}
+
+
+14. How to use the custome annotation in the method ?
+@DeleteMapping("/delete/{id}")
+    @someNewMethodTrigger(entrydata="this is updated message ")
+    public void deleteCustomer(@PathVariable int id) throws NoSuchMethodException, SecurityException{
+
+      Method method=  this.getClass().getMethod("deleteCustomer",int.class );
+      System.out.println(method.getAnnotation(someNewMethodTrigger.class).entrydata());
+         customerRepo.deleteById(id);
+    }
+
+15. How to write the NamedQuery?
+Entity
+@NamedQuery(name="Customer.findAllData",query = "select s from Customer s ")
+@NamedQuery(name="Customer.findbynameee",query="select s from Customer s where LOWER(s.name)=LOWER(:name)")
+public class Customer {  
+
+    // id, int, pk
+
+// controller
+ @GetMapping("/getname/{name}")
+    public Customer getAllCustomer(@PathVariable String name){
+
+      TypedQuery<Customer> customer=  entityManager.createNamedQuery("Customer.findbynameee", Customer.class);
+      customer.setParameter("name",name );
+
+      return customer.getSingleResult();
+
+        
+    }
+16,.what is JPA entity ?
+https://docs.oracle.com/html/E13981_01/undejbs003.htm
+https://medium.com/@pratik.941/important-jpa-interview-questions-a-detailed-guide-5c1405e0927b
+
+17. what is the entity lifecyce?
+https://medium.com/@ali75mnf/quick-journey-into-persistence-understanding-jpa-entity-lifecycle-d4333985a25d
+
+18.why build keyword is used in the last for the ResponsEntity creation ?
+It make sures the response is immutable, which means the object can not be edited moving forward .
+
+19. what is the use of java.lang.reflect ?
+@Retention is another meta-annotation that determines how long the annotation is retained.
+
+RUNTIME means that the annotation will be available at runtime, i.e., it can be accessed during the program's execution. This is useful if you want to use reflection to inspect the annotations at runtime.
+
+import java.lang.reflect.*;
+
+public class DumpMethods {
+    public static void main(String args[]) {
+        try {
+            // Step 1: Get the Class object
+            Class c = Class.forName("java.util.Stack");
+            // Step 2: Get all declared methods
+            Method m[] = c.getDeclaredMethods();
+            // Step 3: Use the reflection API to manipulate the information
+            for (int i = 0; i < m.length; i++)
+                System.out.println(m[i].toString());
+        } catch (Throwable e) {
+            System.err.println(e);
+        }
+    }
+}
+
+
+
+
