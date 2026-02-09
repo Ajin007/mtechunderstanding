@@ -42,3 +42,7 @@ We can achieve Inversion of Control through various mechanisms such as: Strategy
 1.  The @Bean annotation on a method indicates that the method creates a Spring bean.
 2. Moreover, a class annotated with @Configuration indicates that it contains Spring bean configurations.
 ~~~
+## Simple Project for understanding
+~~~
+https://medium.com/@hewage.d.sampath/building-the-first-maven-project-using-spring-framework-85d611d7d6da
+~~~
