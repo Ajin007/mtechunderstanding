@@ -46,3 +46,10 @@ We can achieve Inversion of Control through various mechanisms such as: Strategy
 ~~~
 https://medium.com/@hewage.d.sampath/building-the-first-maven-project-using-spring-framework-85d611d7d6da
 ~~~
+
+## How Beans can be configured in the XML configuration file
+~~~
+XML
+Java-based Configuration
+Annotations
+~~~
