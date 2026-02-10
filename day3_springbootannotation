@@ -1,0 +1,81 @@
+# LTIM_JavaFS_Revamped_Project_OCT_PRODUCT_GET_COLLECTIONS
+
+## product_controller
+  ~~~
+  package com.examly.springapp.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.examly.springapp.model.Product;
+
+@RestController
+@RequestMapping("/product")
+public class ProductController {
+
+    private Product product=new Product(1,"Laptop",999.99);
+
+    @GetMapping("")
+    public ResponseEntity<Product> getProduct(){
+
+        if(product != null){
+
+            return ResponseEntity.ok(product);
+        }else{
+
+            return ResponseEntity.status(404).build();
+        }
+
+    }
+
+}
+
+  ~~~
+
+  ## model
+    ~~~
+    package com.examly.springapp.model;
+
+public class Product {
+
+    private int id;
+    private String name;
+    private double price;
+    
+    
+    public Product() {
+    }
+    public Product(int id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public double getPrice() {
+        return price;
+    }
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    
+
+
+}
+
+    ~~~
+
+# 
