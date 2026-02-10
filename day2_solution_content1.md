@@ -231,3 +231,139 @@ public class SpringappApplication {
 </beans>
 
 ~~~
+# LTIM_JavaFS_Revamped_Project_OCT_USER_BEAN
+## APPConfig
+~~~
+package com.examly.springapp;
+
+import java.util.Arrays;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public User user1(){
+        return new User("1","Ajin");
+    }
+
+    @Bean
+    public User user2(){
+        return new User("2","roch");
+    }
+
+    @Bean
+    public UserService userService(){
+
+        UserService userService=new UserService();
+        userService.setUserList(Arrays.asList(user1(),user2()));
+        return userService;
+    }
+
+
+}
+
+~~~
+
+## run
+~~~
+package com.examly.springapp;
+
+import java.util.List;
+
+import org.springframework.boot.SpringApplication;
+
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
+public class SpringappApplication {
+
+	public static void main(String[] args) {
+
+		ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		UserService service= context.getBean(UserService.class);
+	List<User> users=	service.getAllUsers();
+
+		for(User user:users){
+			System.out.println(user);
+		}
+
+		SpringApplication.run(SpringappApplication.class, args);
+	}
+
+}
+
+~~~
+## user
+~~~
+package com.examly.springapp;
+
+public class User {
+    private String id;
+    private String name;
+    
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", name=" + name + "]";
+    }
+    public User() {
+    }
+    public String getId() {
+        return id;
+    }public User(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+   
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    
+
+
+}
+
+~~~
+## UserService
+~~~
+package com.examly.springapp;
+
+import java.util.List;
+
+public class UserService {
+
+    List<User> userList;
+
+    public void addUser(User user){
+        userList.add(user);
+    }
+
+    public List<User> getAllUsers(){
+        return userList;
+    }
+
+    public List<User> getUserList() {
+        return userList;
+    }
+
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+    }
+    
+
+}
+
+~~~
