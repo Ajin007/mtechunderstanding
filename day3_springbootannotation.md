@@ -327,3 +327,236 @@ public class LaptopService {
 }
 
 ~~~
+
+## LTIM_JavaFS_Revamped_Project_OCT_ShoppingCartException
+### controller
+~~~
+package com.examly.springapp.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.examly.springapp.exception.InvalidPriceException;
+import com.examly.springapp.model.Product;
+import com.examly.springapp.service.ProductService;
+import com.examly.springapp.service.ProductServiceImpl;
+
+@RestController
+@RequestMapping("/api")
+public class ProductController {
+
+    @Autowired
+    ProductService productService;
+
+    @PostMapping("/product")
+    public ResponseEntity<Product> createProduct(@RequestBody Product product){
+
+      
+        if(product.getPrice() < 0){
+            throw new InvalidPriceException(
+                "Product price cannot be negative:" + product.getPrice()
+            );
+        }
+
+        Product savedProduct = productService.createProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+    }
+
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<Product> getProductById(@PathVariable int productId){
+
+      Product product=  productService.getById(productId);
+      if(product != null){
+        return ResponseEntity.ok(product);
+
+      }else{
+        return ResponseEntity.notFound().build();
+      }
+      
+    }
+
+      @PutMapping("/product/{productId}")
+      public ResponseEntity<Product> updateProduct(@PathVariable int productId, @RequestBody Product product){
+
+       Product productt= productService.updateProduct(productId, product);
+       if(productt !=null){
+        return ResponseEntity.ok(productt);
+       }else{
+        return ResponseEntity.notFound().build();
+       }
+    }
+
+}
+
+~~~
+
+### Exception
+~~~
+package com.examly.springapp.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalException {
+
+    @ExceptionHandler(InvalidPriceException.class)
+    public ResponseEntity<String> handleInvalidnumberException(InvalidPriceException ex){
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+}
+
+##
+
+package com.examly.springapp.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+// @ResponseStatus(HttpStatus.BAD_REQUEST)
+public class InvalidPriceException extends RuntimeException {
+
+    public InvalidPriceException(String name){
+        super(name);
+    }
+
+    
+
+}
+
+~~~
+
+### model
+~~~
+package com.examly.springapp.model;
+
+public class Product {
+
+    Long id;
+    String name;
+    double price;
+    int quantity;
+
+    
+
+    
+    public Product() {
+    }
+    public Product(Long id, String name, double price, int quantity) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public double getPrice() {
+        return price;
+    }
+    public void setPrice(double price) {
+        this.price = price;
+    }
+    public int getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    
+
+
+}
+
+~~~
+### service
+~~~
+package com.examly.springapp.service;
+
+import com.examly.springapp.model.Product;
+
+public interface ProductService {
+
+    public Product createProduct(Product product);
+    public Product getById(int id);
+        public Product updateProduct(int id,Product product);
+}
+
+
+### service implementation layer
+package com.examly.springapp.service;
+
+import java.util.ArrayList;
+
+import org.springframework.stereotype.Service;
+
+import com.examly.springapp.model.Product;
+
+import com.examly.springapp.model.Product;
+
+@Service
+public class ProductServiceImpl implements ProductService {
+
+    ArrayList<Product> products=new ArrayList<Product>();
+
+    public Product createProduct(Product product){
+        if(product ==null){
+            return null;
+        }else{
+
+            products.add(product);
+            return product;
+        }
+
+    }
+
+    public Product getById(int id){
+        for(Product product:products){
+            if(product.getId()==id){
+                return product;
+            }
+        }
+        return null;
+    }
+
+    public Product updateProduct(int id,Product product){
+        for(Product productt:products){
+            if(productt.getId()==id){
+                productt.setName(product.getName());
+                productt.setPrice(product.getPrice());
+                productt.setQuantity(product.getQuantity());
+                return productt;
+            }
+        }
+        return null;
+    }
+
+
+
+
+}
+
+~~~
